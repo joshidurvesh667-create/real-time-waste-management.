@@ -139,7 +139,7 @@ app.get("/", (req, res) => {
 	console.log(req.session, "req.session.user")
   if (req.session.user) {
     //res.send(`<h1>Welcome ${req.session.user.username}</h1>              <a href="/logout">Logout</a>`);
-	res.sendFile(path.join(__dirname, "public", "dashboard.html"));
+	res.redirect("/dashboard");
   } else {
     //res.sendFile(path.join(__dirname, "public", "login.html"));
 	res.redirect("/login");
