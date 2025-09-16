@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Smart Waste Management — Dashboard UI</title>
+
+  <!-- Google Font + Font Awesome -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --accent:#16a34a;
+      --glass: rgba(255,255,255,0.6);
+      --shadow: 0 8px 30px rgba(15,23,42,0.06);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg, var(--bg), #eef3f6 200px);
+      color:#0f172a;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    /* Layout */
+    .app {
+      display:grid;
+      grid-template-columns: 260px 1fr;
+      min-height:100vh;
+      gap:20px;
+      padding:20px;
+    }
+
+    /* Sidebar */
+    .sidebar{
+      background: linear-gradient(180deg,#071827 0%, #063047 100%);
+      color:white;
+      border-radius:12px;
+      padding:22px;
+      box-shadow: var(--shadow);
+      display:flex;
+      flex-direction:column;
+      gap:20px;
+    }
+    .brand{
+      display:flex;align-items:center;gap:12px;
+    }
+    .brand .logo{
+      width:44px;height:44px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;color:white;font-size:18px;
+      box-shadow: 0 6px 18px rgba(16,185,129,0.18);
+    }
+    .brand h1{font-size:16px;margin:0}
+    .nav{
+      margin-top:6px;display:flex;flex-direction:column;gap:8px;
+    }
+    .nav button{
+      display:flex;align-items:center;gap:12px;padding:10px;border-radius:8px;border:0;background:transparent;color:rgba(255,255,255,0.9);cursor:pointer;text-align:left;
+    }
+    .nav button.active{background: rgba(255,255,255,0.06);box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);}
+    .nav button i{width:20px;text-align:center}
+
+    .sidebar .footer{margin-top:auto;font-size:13px;opacity:.9}
+
+    /* Main area */
+    .main {
+      display:flex;flex-direction:column;gap:18px;
+    }
+
+    /* Topbar */
+    .topbar{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+    }
+    .search{
+      display:flex;align-items:center;gap:10px;background:var(--card);padding:10px;border-radius:10px;box-shadow:var(--shadow);width:520px;
+    }
+    .search input{border:0;outline:none;font-size:14px;background:transparent;width:100%}
+    .top-actions{display:flex;align-items:center;gap:12px}
+
+    .avatar{
+      width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#4ade80,#16a34a);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;
+    }
+
+    /* KPI Row */
+    .kpi-row{
+      display:grid;grid-template-columns:repeat(4,1fr);gap:18px;
+    }
+    .kpi{
+      background:var(--card);padding:18px;border-radius:12px;box-shadow:var(--shadow);display:flex;justify-content:space-between;align-items:center;gap:12px;
+    }
+    .kpi .left{display:flex;flex-direction:column;gap:6px}
+    .kpi h3{margin:0;font-size:24px}
+    .kpi p{margin:0;color:var(--muted);font-size:13px}
+    .kpi .icon{font-size:22px;padding:10px;border-radius:10px;color:white;width:46px;height:46px;display:flex;align-items:center;justify-content:center}
+    .kpi.recycle{background-image:linear-gradient(90deg,#fefff0,#f0fff3);border:1px solid rgba(16,185,129,0.06)}
+    .kpi .icon.recycle{background:linear-gradient(135deg,#10b981,#059669)}
+    .kpi.bin .icon{background:linear-gradient(135deg,#f97316,#fb923c)}
+    .kpi.truck .icon{background:linear-gradient(135deg,#60a5fa,#3b82f6)}
+    .kpi.users .icon{background:linear-gradient(135deg,#a78bfa,#7c3aed)}
+
+    /* Content grid */
+    .content{
+      display:grid;
+      grid-template-columns: 1fr 420px;
+      gap:18px;
+      align-items:start;
+    }
+
+    /* Left column */
+    .panel{
+      background:var(--card);padding:16px;border-radius:12px;box-shadow:var(--shadow);
+    }
+
+    /* Live bins list */
+    .bins{display:flex;flex-direction:column;gap:10px}
+    .bin-item{display:flex;align-items:center;justify-content:space-between;padding:10px;border-radius:10px;border:1px solid #eef2f7;background:linear-gradient(180deg,#fff,#fbfdff)}
+    .bin-info{display:flex;gap:12px;align-items:center}
+    .bin-dot{width:14px;height:14px;border-radius:4px}
+    .dot-empty{background:#10b981}
+    .dot-half{background:#f59e0b}
+    .dot-full{background:#ef4444}
+
+    /* Modules area */
+    .modules{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px}
+    .module-card{padding:12px;border-radius:10px;border:1px solid #eef2f7;background:linear-gradient(180deg,#fff,#fcfeff)}
+
+    .module-card h4{margin:0 0 8px 0}
+    .module-card input, .module-card select {width:100%;padding:8px;margin-top:6px;border-radius:8px;border:1px solid #e6eef6}
+
+    /* Right column */
+    .map{
+      height:320px;border-radius:10px;border:1px solid #e6eef6;background:linear-gradient(180deg,#eef9f7,#ffffff);display:flex;align-items:center;justify-content:center;color:var(--muted)
+    }
+
+    .table{margin-top:12px;border-radius:10px;overflow:hidden;border:1px solid #eef2f7}
+    .table table{width:100%;border-collapse:collapse}
+    .table th,.table td{padding:10px;text-align:left;border-bottom:1px solid #f1f5f9;font-size:14px}
+    .table th{background:#fbfeff;font-weight:600}
+
+    /* Responsive */
+    @media (max-width:1000px){
+      .app{grid-template-columns: 1fr; padding:12px}
+      .kpi-row{grid-template-columns:repeat(2,1fr)}
+      .content{grid-template-columns:1fr}
+      .map{height:220px}
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">WM</div>
+        <div>
+          <div style="font-size:13px;opacity:.9">Smart City</div>
+          <h1 style="font-size:15px;margin-top:4px">Waste Dashboard</h1>
+        </div>
+      </div>
+
+      <nav class="nav" id="mainNav">
+        <button class="active" data-tab="overview"><i class="fa-solid fa-chart-line"></i> Overview</button>
+        <button data-tab="smartbins"><i class="fa-solid fa-bin"></i> Smart Bins</button>
+        <button data-tab="ewaste"><i class="fa-solid fa-mobile-screen-button"></i> E-Waste</button>
+        <button data-tab="market"><i class="fa-solid fa-wine-bottle"></i> Glass Market</button>
+        <button data-tab="donate"><i class="fa-solid fa-shirt"></i> Clothes</button>
+        <button data-tab="medical"><i class="fa-solid fa-hospital"></i> Medical</button>
+        <button data-tab="food"><i class="fa-solid fa-bowl-food"></i> Food</button>
+        <button data-tab="farm"><i class="fa-solid fa-cow"></i> Farmers</button>
+        <button data-tab="schedule"><i class="fa-solid fa-truck"></i> Schedule</button>
+        <button data-tab="rewards"><i class="fa-solid fa-gift"></i> Rewards</button>
+      </nav>
+
+      <div class="footer">© 2025 City Waste Management</div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <!-- topbar -->
+      <div class="topbar">
+        <div style="display:flex;gap:12px;align-items:center">
+          <div class="search">
+            <i class="fa-solid fa-magnifying-glass" style="color:var(--muted)"></i>
+            <input placeholder="Search bins, items, users..." id="searchInput">
+          </div>
+          <div style="font-size:13px;color:var(--muted)">Real-time demo • simulated data</div>
+        </div>
+
+        <div class="top-actions">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="text-align:right">
+              <div style="font-size:13px;color:var(--muted)">Hello,</div>
+              <div style="font-weight:600">Akanksha</div>
+            </div>
+            <div class="avatar">A</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI Row -->
+      <div class="kpi-row">
+        <div class="kpi recycle">
+          <div class="left">
+            <p style="font-size:13px;color:var(--muted)">Today's Recycled</p>
+            <h3 id="kpiRecycled">1,240 kg</h3>
+          </div>
+          <div class="icon recycle"><i class="fa-solid fa-recycle"></i></div>
+        </div>
+
+        <div class="kpi bin">
+          <div class="left">
+            <p style="font-size:13px;color:var(--muted)">Bins Full</p>
+            <h3 id="kpiFull">8</h3>
+          </div>
+          <div class="icon bin"><i class="fa-solid fa-trash-can"></i></div>
+        </div>
+
+        <div class="kpi truck">
+          <div class="left">
+            <p style="font-size:13px;color:var(--muted)">Active Trucks</p>
+            <h3 id="kpiTrucks">3</h3>
+          </div>
+          <div class="icon truck"><i class="fa-solid fa-truck"></i></div>
+        </div>
+
+        <div class="kpi users">
+          <div class="left">
+            <p style="font-size:13px;color:var(--muted)">Green Points Redeemed</p>
+            <h3 id="kpiPoints">5,420</h3>
+          </div>
+          <div class="icon users"><i class="fa-solid fa-user-check"></i></div>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="content">
+        <!-- Left column -->
+        <section>
+          <div class="panel">
+            <h3 style="margin:0 0 8px 0">Live Smart Bins</h3>
+            <p style="margin:0 0 12px 0;color:var(--muted)">Status updates every few seconds (simulated).</p>
+
+            <div class="bins" id="binsList">
+              <!-- JS will populate -->
+            </div>
+
+            <div class="modules" id="modulesArea">
+              <!-- Quick module cards -->
+              <div class="module-card">
+                <h4>E-Waste Listing</h4>
+                <input id="m-ew-item" placeholder="Device (e.g., Phone)">
+                <input id="m-ew-cond" placeholder="Condition (Working/Not)">
+                <button onclick="modulePost('E-Waste', { item: document.getElementById('m-ew-item').value, condition: document.getElementById('m-ew-cond').value })">List E-Waste</button>
+              </div>
+
+              <div class="module-card">
+                <h4>Glass Market</h4>
+                <input id="m-glass-desc" placeholder="Glass (bottles, mirrors)">
+                <input id="m-glass-qty" placeholder="Quantity (kg)">
+                <button onclick="modulePost('Glass', { desc: document.getElementById('m-glass-desc').value, qty: document.getElementById('m-glass-qty').value })">Post Glass</button>
+              </div>
+
+              <div class="module-card">
+                <h4>Clothes Donation</h4>
+                <select id="m-clothes">
+                  <option>Kids</option><option>Women</option><option>Men</option>
+                </select>
+                <input id="m-clothes-qty" placeholder="Count">
+                <button onclick="modulePost('Clothes', { category: document.getElementById('m-clothes').value, qty: document.getElementById('m-clothes-qty').value })">Donate</button>
+              </div>
+
+              <div class="module-card">
+                <h4>Medical Waste</h4>
+                <input id="m-med" placeholder="Details (e.g., used syringes)">
+                <button onclick="modulePost('Medical', { details: document.getElementById('m-med').value })">Report</button>
+              </div>
+
+              <div class="module-card">
+                <h4>Food Donation</h4>
+                <input id="m-food" placeholder="Item / Shop">
+                <button onclick="modulePost('Food', { item: document.getElementById('m-food').value })">Donate</button>
+              </div>
+
+              <div class="module-card">
+                <h4>Cow Dung Marketplace</h4>
+                <input id="m-dung" placeholder="Quantity (kg)">
+                <button onclick="modulePost('CowDung', { qty: document.getElementById('m-dung').value })">Sell</button>
+              </div>
+
+              <div class="module-card">
+                <h4>Composting</h4>
+                <p style="font-size:13px;color:var(--muted);margin:0">Book community compost center</p>
+                <button onclick="modulePost('Compost', { action:'book' })">Book Center</button>
+              </div>
+
+              <div class="module-card">
+                <h4>Collect Schedule</h4>
+                <p style="font-size:13px;color:var(--muted);margin:0">Notify when truck is near</p>
+                <button onclick="modulePost('Schedule', { action:'subscribe' })">Subscribe</button>
+              </div>
+
+              <div class="module-card">
+                <h4>Rewards</h4>
+                <p style="font-size:13px;color:var(--muted);margin:0">Earn & redeem</p>
+                <button onclick="modulePost('Rewards', { action:'claim' })">Claim Rewards</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel table" style="margin-top:12px">
+            <table>
+              <thead><tr><th>Recent Activity</th><th>Type</th><th>Time</th></tr></thead>
+              <tbody id="recentTable">
+                <!-- JS populates -->
+              </tbody>
+            </table>
+          </div>
+
+        </section>
+
+        <!-- Right column -->
+        <aside>
+          <div class="panel">
+            <h3 style="margin:0 0 8px 0">Map & Trucks</h3>
+            <div class="map" id="mapArea">Map placeholder (integrate Google/Leaflet)</div>
+            <div style="display:flex;gap:10px;margin-top:12px">
+              <button onclick="simulateTruck()">Locate Trucks</button>
+              <button onclick="fetchRecent()">Refresh Data</button>
+            </div>
+          </div>
+
+          <div class="panel" style="margin-top:12px">
+            <h3 style="margin:0 0 8px 0">Market Listings</h3>
+            <div style="font-size:13px;color:var(--muted);margin-bottom:8px">Latest E-waste & Glass offers</div>
+            <div id="marketList" style="display:flex;flex-direction:column;gap:8px"></div>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // --------------------------
+    // Demo front-end logic only
+    // --------------------------
+    const API_BASE = "http://localhost:5000/api"; // change when backend ready
+
+    // Mock bins (could be fetched from backend)
+    let bins = [
+      { id: 'B-101', location: 'Sector 5', type: 'Dry', status: 'Empty' },
+      { id: 'B-102', location: 'Sector 6', type: 'Wet', status: 'Half' },
+      { id: 'B-103', location: 'Market Rd', type: 'Dry', status: 'Full' },
+      { id: 'B-104', location: 'Park Ave', type: 'Wet', status: 'Empty' },
+      { id: 'B-105', location: 'Station', type: 'Hazardous', status: 'Half' }
+    ];
+
+    const binsList = document.getElementById('binsList');
+    const recentTable = document.getElementById('recentTable');
+    const marketList = document.getElementById('marketList');
+
+    // render bins
+    function renderBins(){
+      binsList.innerHTML = '';
+      bins.forEach(b=>{
+        const div = document.createElement('div');
+        div.className = 'bin-item';
+        div.innerHTML = `
+          <div class="bin-info">
+            <div style="width:44px;height:44px;border-radius:8px;background:#f8fafc;display:flex;align-items:center;justify-content:center;font-weight:600">${b.id.split('-')[1]}</div>
+            <div>
+              <div style="font-weight:600">${b.location}</div>
+              <div style="font-size:13px;color:var(--muted)">${b.type}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="bin-dot ${b.status==='Empty'?'dot-empty':b.status==='Half'?'dot-half':'dot-full'}" title="${b.status}"></div>
+            <div style="font-size:13px;color:var(--muted)">${b.status}</div>
+          </div>
+        `;
+        binsList.appendChild(div);
+      });
+    }
+
+    // simulate periodic updates (real-time feel)
+    function randomizeBins(){
+      bins = bins.map(b=>{
+        const r = Math.random();
+        const st = r < 0.5 ? 'Empty' : r < 0.85 ? 'Half' : 'Full';
+        return {...b, status: st};
+      });
+      // update kpi count:
+      document.getElementById('kpiFull').innerText = bins.filter(x=>x.status==='Full').length;
+      renderBins();
+      addRecent('System', 'Bins updated (simulated)');
+    }
+
+    // Recent activity
+    function addRecent(type, text){
+      const tr = document.createElement('tr');
+      const time = new Date().toLocaleTimeString();
+      tr.innerHTML = `<td style="width:60%">${text}</td><td style="width:20%">${type}</td><td style="width:20%">${time}</td>`;
+      recentTable.prepend(tr);
+      // keep last 8
+      while(recentTable.children.length > 8) recentTable.removeChild(recentTable.lastChild);
+    }
+
+    // Module post (sends to backend if available)
+    async function modulePost(moduleName, data){
+      // record locally
+      addRecent(moduleName, JSON.stringify(data).slice(0,60));
+      marketList.prepend(renderMarketItem(moduleName, data));
+      // try send to backend
+      try {
+        await fetch(`${API_BASE}/waste`, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ userId:'demo', type: moduleName, details: data })
+        });
+      } catch(e){
+        // backend not available — ignore in demo
+      }
+      // small visual feedback
+      showToast(`${moduleName} submitted`);
+    }
+
+    // helpers
+    function renderMarketItem(type,data){
+      const el = document.createElement('div');
+      el.style.padding = '8px';
+      el.style.borderRadius = '8px';
+      el.style.border = '1px solid #eef2f7';
+      el.style.background = '#fff';
+      el.innerHTML = `<div style="font-weight:600">${type}</div><div style="font-size:13px;color:var(--muted)">${JSON.stringify(data)}</div>`;
+      return el;
+    }
+
+    function showToast(msg){
+      const t = document.createElement('div');
+      t.textContent = msg;
+      t.style.position='fixed';t.style.right='20px';t.style.bottom='20px';t.style.background='#0f172a';t.style.color='white';t.style.padding='10px 14px';t.style.borderRadius='8px';t.style.boxShadow='0 10px 30px rgba(2,6,23,0.3)';
+      document.body.appendChild(t);
+      setTimeout(()=>t.remove(),2200);
+    }
+
+    // simulate truck locator
+    function simulateTruck(){
+      showToast('Truck #T-01 is 2.2 km away');
+      addRecent('Truck', 'Truck T-01 updated location (simulated)');
+    }
+
+    function fetchRecent(){
+      addRecent('User', 'Manual refresh');
+    }
+
+    // initial render
+    renderBins();
+    addRecent('System','Dashboard loaded');
+    setInterval(randomizeBins, 7000); // every 7s update
+    setInterval(()=>addRecent('System','Auto refresh'), 30000);
+
+    // hook search nav (simple)
+    document.getElementById('mainNav').addEventListener('click', e=>{
+      const btn = e.target.closest('button');
+      if(!btn) return;
+      [...document.querySelectorAll('.nav button')].forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      showToast(`Switched to ${btn.dataset.tab}`);
+    });
+
+    // keyboard: press R to simulate refresh
+    window.addEventListener('keydown', (e)=>{ if(e.key.toLowerCase()==='r'){fetchRecent(); showToast('Refresh (R)');}});
+  </script>
+</body>
+</html>

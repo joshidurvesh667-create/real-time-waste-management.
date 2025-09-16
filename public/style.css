@@ -1,0 +1,16 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card {
+  border-radius: 15px;
+}
+
+h3 {
+  font-weight: 600;
+}
+
+.navbar-brand {
+  font-weight: bold;
+  letter-spacing: 1px;
+}
