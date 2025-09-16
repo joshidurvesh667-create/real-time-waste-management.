@@ -19,7 +19,7 @@ const UserSchema = new mongoose.Schema({
 
 
 
-const Waste = require("./models/Waste");
+const Waste = require("./models/waste");
 
 const app = express();
 app.use(cors());
